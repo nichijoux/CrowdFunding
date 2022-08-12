@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zh.crowd.mapper.AdminMapper">
+    <resultMap id="BaseResultMap" type="com.zh.crowd.entity.Admin">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="CHAR" property="password"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="create_time" jdbcType="CHAR" property="createTime"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+        id, account, username, password, email, create_time
+    </sql>
+    <select id="selectByExample" parameterType="com.zh.crowd.entity.AdminExample" resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from t_admin
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_admin
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from t_admin
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByExample" parameterType="com.zh.crowd.entity.AdminExample">
+        delete from t_admin
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <!-- 删除旧的用户-角色关系 -->
+    <delete id="deleteOldRelationship">
+        delete
+        from inner_admin_role
+        where admin_id = #{adminId}
+    </delete>
+    <insert id="insert" parameterType="com.zh.crowd.entity.Admin">
+        insert into t_admin (id, account, username,
+                             password, email, create_time)
+        values (#{id,jdbcType=INTEGER}, #{account,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=CHAR}, #{email,jdbcType=VARCHAR}, #{createTime,jdbcType=CHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.zh.crowd.entity.Admin">
+        insert into t_admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="account != null">
+                account,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="account != null">
+                #{account,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=CHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=CHAR},
+            </if>
+        </trim>
+    </insert>
+    <!-- 插入新的用户-角色关系 -->
+    <insert id="insertNewRelationship">
+        insert into inner_admin_role(admin_id, role_id) VALUES
+        <foreach collection="roleIdList" item="roleId" separator=",">
+            (#{adminId},#{roleId})
+        </foreach>
+    </insert>
+    <select id="countByExample" parameterType="com.zh.crowd.entity.AdminExample" resultType="java.lang.Long">
+        select count(*) from t_admin
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <!-- 根据关键词查询admin用户 -->
+    <select id="selectAdminByKeyword" resultType="com.zh.crowd.entity.Admin">
+        select id, account, username, password, email, create_time
+        from t_admin
+        where account like concat('%', #{keyword}, '%')
+           or username like concat('%', #{keyword}, '%')
+           or email like concat('%', #{keyword}, '%')
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update t_admin
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=INTEGER},
+            </if>
+            <if test="record.account != null">
+                account = #{record.account,jdbcType=VARCHAR},
+            </if>
+            <if test="record.username != null">
+                username = #{record.username,jdbcType=VARCHAR},
+            </if>
+            <if test="record.password != null">
+                password = #{record.password,jdbcType=CHAR},
+            </if>
+            <if test="record.email != null">
+                email = #{record.email,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createTime != null">
+                create_time = #{record.createTime,jdbcType=CHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update t_admin
+        set id = #{record.id,jdbcType=INTEGER},
+        account = #{record.account,jdbcType=VARCHAR},
+        username = #{record.username,jdbcType=VARCHAR},
+        password = #{record.password,jdbcType=CHAR},
+        email = #{record.email,jdbcType=VARCHAR},
+        create_time = #{record.createTime,jdbcType=CHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zh.crowd.entity.Admin">
+        update t_admin
+        <set>
+            <if test="account != null">
+                account = #{account,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=CHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=CHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.zh.crowd.entity.Admin">
+        update t_admin
+        set account     = #{account,jdbcType=VARCHAR},
+            username    = #{username,jdbcType=VARCHAR},
+            password    = #{password,jdbcType=CHAR},
+            email       = #{email,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=CHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

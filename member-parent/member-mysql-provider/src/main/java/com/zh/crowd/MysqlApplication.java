@@ -1,0 +1,15 @@
+package com.zh.crowd;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@MapperScan(basePackages = "com.zh.crowd.mapper")
+public class MysqlApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MysqlApplication.class, args);
+    }
+}
